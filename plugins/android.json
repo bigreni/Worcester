@@ -25,9 +25,6 @@
     "cordova-plugin-geolocation": {
       "GPS_REQUIRED": "true",
       "PACKAGE_NAME": "com.worcester.free"
-    },
-    "cordova-plugin-whitelist": {
-      "PACKAGE_NAME": "com.worcester.free"
     }
   },
   "dependent_plugins": {

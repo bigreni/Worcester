@@ -41,10 +41,12 @@
             document.getElementById('screen').style.display = 'none';     
         });
         document.addEventListener('onAdLoaded', function (data) {
-            AdMob.showInterstitial();
+            document.getElementById('screen').style.display = 'none';     
         });
         document.addEventListener('onAdPresent', function (data) { });
-        document.addEventListener('onAdLeaveApp', function (data) { });
+        document.addEventListener('onAdLeaveApp', function (data) { 
+            document.getElementById('screen').style.display = 'none';     
+        });
         document.addEventListener('onAdDismiss', function (data) { 
             document.getElementById('screen').style.display = 'none';     
         });
@@ -56,11 +58,11 @@
 
     function loadInterstitial() {
         if ((/(android|windows phone)/i.test(navigator.userAgent))) {
-            //AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
-            document.getElementById("screen").style.display = 'none';     
+            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
+            //document.getElementById("screen").style.display = 'none';     
         } else if ((/(ipad|iphone|ipod)/i.test(navigator.userAgent))) {
-            //AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
-            document.getElementById("screen").style.display = 'none';     
+            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
+            //document.getElementById("screen").style.display = 'none';     
         } else
         {
             document.getElementById("screen").style.display = 'none';     
@@ -100,11 +102,23 @@ function askRating()
 AppRate.promptForRating(false);
 }
 
+function showAd()
+{
+    document.getElementById("screen").style.display = 'block'; 
+    if ((/(android|windows phone)/i.test(navigator.userAgent))) {
+        AdMob.isInterstitialReady(function(isready){
+            if(isready) 
+                AdMob.showInterstitial();
+        });
+    }
+    document.getElementById("screen").style.display = 'none'; 
+}
 
 function getDirections() {
     reset();
     var url = encodeURI("http://bustracker.therta.com/bustime/map/getDirectionsStopsForRoute.jsp?route=" + $("#MainMobileContent_routeList").val());
-	$.get(url, function(data) {processXmlDocumentDirections(data); });    $("span").remove();
+	$.get(url, function(data) {processXmlDocumentDirections(data); });
+    $("span").remove();
     $(".dropList").select2();
 }
 
@@ -159,6 +173,7 @@ function processXmlDocumentStops(xml)
 }
 
 function getArrivalTimes() {
+    showAd();
     reset();
     var allRoutes = document.getElementById('allRoutes');
     var url = encodeURI("http://bustracker.therta.com/bustime/eta/getStopPredictionsETA.jsp?route=" + $("#MainMobileContent_routeList").val() + "&stop=" + $("#MainMobileContent_stopList").val());
@@ -244,5 +259,6 @@ function saveFavorites()
 
 function loadFaves()
 {
+    showAd();
     window.location = "Favorites.html";
 }
