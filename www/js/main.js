@@ -61,7 +61,7 @@
             AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
             //document.getElementById("screen").style.display = 'none';     
         } else if ((/(ipad|iphone|ipod)/i.test(navigator.userAgent))) {
-            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: true });
+            AdMob.prepareInterstitial({ adId: admobid.interstitial, isTesting: false, autoShow: false });
             //document.getElementById("screen").style.display = 'none';     
         } else
         {
@@ -72,10 +72,8 @@
    function checkFirstUse()
     {
         $(".dropList").select2();
-        //window.ga.startTrackerWithId('UA-88579601-20', 1, function(msg) {
-        //    window.ga.trackView('Home');
-        //});  
         initApp();
+        checkPermissions();
         askRating();
         //document.getElementById("screen").style.display = 'none';     
     }
@@ -84,6 +82,25 @@
     {
         $(".dropList").select2();
         document.getElementById("screen").style.display = 'none';     
+    }
+
+    function checkPermissions(){
+        const idfaPlugin = cordova.plugins.idfa;
+    
+        idfaPlugin.getInfo()
+            .then(info => {
+                if (!info.trackingLimited) {
+                    return info.idfa || info.aaid;
+                } else if (info.trackingPermission === idfaPlugin.TRACKING_PERMISSION_NOT_DETERMINED) {
+                    return idfaPlugin.requestPermission().then(result => {
+                        if (result === idfaPlugin.TRACKING_PERMISSION_AUTHORIZED) {
+                            return idfaPlugin.getInfo().then(info => {
+                                return info.idfa || info.aaid;
+                            });
+                        }
+                    });
+                }
+            });
     }
 
 function askRating()
@@ -104,14 +121,14 @@ AppRate.promptForRating(false);
 
 function showAd()
 {
-    document.getElementById("screen").style.display = 'block'; 
-    if ((/(android|windows phone)/i.test(navigator.userAgent))) {
-        AdMob.isInterstitialReady(function(isready){
-            if(isready) 
-                AdMob.showInterstitial();
-        });
-    }
-    document.getElementById("screen").style.display = 'none'; 
+document.getElementById("screen").style.display = 'block';     
+// if ((/(ipad|iphone|ipod|android|windows phone)/i.test(navigator.userAgent))) {
+//     AdMob.isInterstitialReady(function(isready){
+//         if(isready) 
+//             AdMob.showInterstitial();
+//     });
+// }
+document.getElementById("screen").style.display = 'none'; 
 }
 
 function getDirections() {
