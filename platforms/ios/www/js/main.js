@@ -122,12 +122,12 @@ AppRate.promptForRating(false);
 function showAd()
 {
 document.getElementById("screen").style.display = 'block';     
-// if ((/(ipad|iphone|ipod|android|windows phone)/i.test(navigator.userAgent))) {
-//     AdMob.isInterstitialReady(function(isready){
-//         if(isready) 
-//             AdMob.showInterstitial();
-//     });
-// }
+if ((/(ipad|iphone|ipod|android|windows phone)/i.test(navigator.userAgent))) {
+    AdMob.isInterstitialReady(function(isready){
+        if(isready) 
+            AdMob.showInterstitial();
+    });
+}
 document.getElementById("screen").style.display = 'none'; 
 }
 

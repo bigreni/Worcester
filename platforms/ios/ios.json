@@ -17,12 +17,8 @@
           ],
           "NSUserTrackingUsageDescription": [
             {
-              "xml": "<string>This identifier will be used to deliver personalized ads to you.</string>",
-              "count": 1
-            },
-            {
               "xml": "<string>Used to remember and personalize your experience</string>",
-              "count": 1,
+              "count": 2,
               "mode": "merge",
               "id": "config.xml"
             }
