@@ -21,8 +21,8 @@
     <preference name="ios-statusbarstyle" value="black" />
     <preference name="detect-data-types" value="true" />
     <preference name="exit-on-suspend" value="false" />
-    <preference name="SplashScreenDelay" value="0"/>
-    <preference name="auto-hide-splash-screen" value="true" />
+    <!-- <preference name="SplashScreenDelay" value="0"/>
+    <preference name="auto-hide-splash-screen" value="true" /> -->
     <preference name="DisallowOverscroll" value ="true" />
     <preference name="disable-cursor" value="false" />
     <preference name="android-minSdkVersion" value="24" />
@@ -51,12 +51,12 @@
     <allow-intent href="geo:*" />
 	<icon src="icon.png" />
     <platform name="android">
-	<preference name="ADMOB_ANDROID_APP_ID" default="ca-app-pub-9249695405712287~8191906786"/>
-	<preference name="PLAY_SERVICES_VERSION" default="20.4.0"/>
+        <preference name="ADMOB_ANDROID_APP_ID" default="ca-app-pub-9249695405712287~8191906786"/>
+        <preference name="PLAY_SERVICES_VERSION" default="20.4.0"/>
         <allow-intent href="market:*" />
-		<edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
+        <edit-config file="AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true" />
-    </edit-config>
+        </edit-config>
     </platform>
     <platform name="ios">
         <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
