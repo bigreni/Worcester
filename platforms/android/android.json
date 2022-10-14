@@ -9,6 +9,10 @@
         "parents": {
           "/manifest/application": [
             {
+              "xml": "<activity android:configChanges=\"keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize\" android:excludeFromRecents=\"true\" android:name=\"com.google.android.gms.ads.AdActivity\" android:noHistory=\"true\" />",
+              "count": 1
+            },
+            {
               "xml": "<meta-data android:name=\"com.google.android.gms.ads.APPLICATION_ID\" android:value=\"ca-app-pub-1855415514372943~9063671314\" />",
               "count": 1
             },
@@ -18,7 +22,7 @@
             },
             {
               "xml": "<application android:usesCleartextTraffic=\"true\" />",
-              "count": 2,
+              "count": 1,
               "mode": "merge",
               "id": "config.xml",
               "oldAttrib": {
