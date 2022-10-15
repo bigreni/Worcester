@@ -26,8 +26,6 @@ buildscript {
         // Android Gradle Plugin (AGP) Build Tools
         classpath "com.android.tools.build:gradle:${cordovaConfig.AGP_VERSION}"
     }
-
-    cdvHelpers.verifyCordovaConfigForBuild()
 }
 
 allprojects {
@@ -44,7 +42,7 @@ allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion cordovaConfig.COMPILE_SDK_VERSION
+    compileSdkVersion cordovaConfig.SDK_VERSION
     buildToolsVersion cordovaConfig.BUILD_TOOLS_VERSION
 
     compileOptions {
@@ -80,7 +78,6 @@ android {
 dependencies {
     implementation "androidx.appcompat:appcompat:${cordovaConfig.ANDROIDX_APP_COMPAT_VERSION}"
     implementation "androidx.webkit:webkit:${cordovaConfig.ANDROIDX_WEBKIT_VERSION}"
-    implementation "androidx.core:core-splashscreen:${cordovaConfig.ANDROIDX_CORE_SPLASHSCREEN_VERSION}"
 }
 
 /**
