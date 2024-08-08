@@ -1,0 +1,6 @@
+framework module Pods_WRTA_Bus_Tracker {
+  umbrella header "Pods-WRTA Bus Tracker-umbrella.h"
+
+  export *
+  module * { export * }
+}
