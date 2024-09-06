@@ -50,6 +50,7 @@
         initApp();
         checkPermissions();
         askRating();
+        //document.getElementById("divSubscribe").style.display = "block";
         //document.getElementById("screen").style.display = 'none';     
     }
 
@@ -105,6 +106,12 @@ function showAd()
         interstitial.show();
         document.getElementById("screen").style.display = 'none';
     }
+}
+
+function proSubscription()
+{
+    window.location = "Subscription.html";
+    //myProduct.getOffer().order();
 }
 
 function getDirections() {
