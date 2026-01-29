@@ -44,9 +44,13 @@
         });
     }
 
-   function checkFirstUse()
+  function checkFirstUse()
     {
+        $("#message").text('WRTA is upgrading to a new bus tracking system. Thank you for your patience as we update the app to work with the new system.');
         $(".dropList").select2();
+        loadRoutes();
+        hideDirectionUI();
+        hideAllRoutesToggle();
         initApp();
         // checkSubscription();        
         checkPermissions();
@@ -55,9 +59,13 @@
         //document.getElementById("screen").style.display = 'none';     
     }
 
-   function notFirstUse()
+  function notFirstUse()
     {
+        $("#message").text('WRTA is upgrading to a new bus tracking system. Thank you for your patience as we update the app to work with the new system.');
         $(".dropList").select2();
+        loadRoutes();
+        hideDirectionUI();
+        hideAllRoutesToggle();
         document.getElementById("screen").style.display = 'none';     
     }
 
@@ -109,45 +117,91 @@ function showAd()
     }
 }
 
+function hideDirectionUI()
+{
+    var directionSelect = $("#MainMobileContent_directionList");
+    if (directionSelect.length) {
+        var directionRow = directionSelect.closest("tr");
+        directionRow.hide();
+        directionRow.prev().hide();
+    }
+}
+
+function hideAllRoutesToggle()
+{
+    var allRoutesToggle = $("#allRoutes");
+    if (allRoutesToggle.length) {
+        allRoutesToggle.closest("tr").hide();
+    }
+}
+
 function proSubscription()
 {
     window.location = "Subscription.html";
     //myProduct.getOffer().order();
 }
 
-function getDirections() {
+function loadRoutes() {
     reset();
-    var url = encodeURI("http://bustracker.therta.com/bustime/map/getDirectionsStopsForRoute.jsp?route=" + $("#MainMobileContent_routeList").val());
-	$.get(url, function(data) {processXmlDocumentDirections(data); });
+    var url = encodeURI("https://swiv.wrta.cadavl.com/SWIV/WRTA/proxy/restWS/topo");
+	$.get(url, function(data) {processRoutes(data); }, 'json');
     $("span").remove();
     $(".dropList").select2();
 }
 
-function processXmlDocumentDirections(xml)
+function processRoutes(data)
 {
-    var list = $("#MainMobileContent_directionList");
+    var list = $("#MainMobileContent_routeList");
     $(list).empty();
-    $(list).append($("<option disabled/>").val("0").text("- Select Direction -"));
-	var routeTag = xml.getElementsByTagName("route");
-	var directionsTag = routeTag[0].getElementsByTagName("directions");	
-	var directionTag = directionsTag[0].getElementsByTagName("direction");
+    $(list).append($("<option disabled/>").val("0").text("- Select Route -"));
+    var routeData = data.topo[0].ligne;
+    for (var i=0; i<routeData.length;i++)
+    {
+        var route = routeData[i].idLigne;
+        var routeDisplay = routeData[i].nomCommercial + " - " + routeData[i].libCommercial;
+        $(list).append($("<option />").val(route).text(routeDisplay));
+    }  
+    $(list).val(0);
 
-	for (var i=0; i<directionTag.length;i++)
-	{
-		var nameTag = directionTag[i].getElementsByTagName("name");
-		var displayTag = directionTag[i].getElementsByTagName("dd");
-        var direction = nameTag[0].firstChild.data;
-		var directionDisplay = displayTag[0].firstChild.data;
-        $(list).append($("<option />").val(direction).text(directionDisplay));
-	}
-	$(list).val(0);
 }
+
+function getDirections() {
+    reset();
+    // var url = encodeURI("http://bustracker.therta.com/bustime/map/getDirectionsStopsForRoute.jsp?route=" + $("#MainMobileContent_routeList").val());
+	// $.get(url, function(data) {processXmlDocumentDirections(data); });
+    // $("span").remove();
+    // $(".dropList").select2();
+    // var list = $("#MainMobileContent_directionList");
+    // $(list).empty();
+    // $(list).style.visibility = "hidden";
+    getStops();
+}
+
+// function processXmlDocumentDirections(xml)
+// {
+//     var list = $("#MainMobileContent_directionList");
+//     $(list).empty();
+//     $(list).append($("<option disabled/>").val("0").text("- Select Direction -"));
+// 	var routeTag = xml.getElementsByTagName("route");
+// 	var directionsTag = routeTag[0].getElementsByTagName("directions");	
+// 	var directionTag = directionsTag[0].getElementsByTagName("direction");
+
+// 	for (var i=0; i<directionTag.length;i++)
+// 	{
+// 		var nameTag = directionTag[i].getElementsByTagName("name");
+// 		var displayTag = directionTag[i].getElementsByTagName("dd");
+//         var direction = nameTag[0].firstChild.data;
+// 		var directionDisplay = displayTag[0].firstChild.data;
+//         $(list).append($("<option />").val(direction).text(directionDisplay));
+// 	}
+// 	$(list).val(0);
+// }
 
 function getStops()
 {
     reset();
-    var url = encodeURI("http://bustracker.therta.com/bustime/map/getStopsForRouteDirection.jsp?route=" + $("#MainMobileContent_routeList").val() + "&direction=" + $("#MainMobileContent_directionList").val());
-	$.get(url, function(data) {  processXmlDocumentStops(data); });
+    var url = encodeURI("https://swiv.wrta.cadavl.com/SWIV/WRTA/proxy/restWS/topo");
+	$.get(url, function(data) {  processXmlDocumentStops(data); }, 'json');
     $("span").remove();
     $(".dropList").select2();
 }
@@ -157,19 +211,21 @@ function processXmlDocumentStops(xml)
         var list = $("#MainMobileContent_stopList");
         $(list).empty();
         $(list).append($("<option disabled/>").val("0").text("- Select Stop -"));
-		var routeTag = xml.getElementsByTagName("route");
-		var stopsTag = routeTag[0].getElementsByTagName("stops");	
-		if(stopsTag != null)
-		{
-			var stopTag = stopsTag[0].getElementsByTagName("stop");
+        var selectedRoute = $("#MainMobileContent_routeList").val();
+        var stopData = xml.topo[0].pointArret;
+        var selectedRoute = Number($("#MainMobileContent_routeList").val());
+        var routeStops = stopData.filter(stop =>
+                            Array.isArray(stop.infoLigneSwiv) &&
+                            stop.infoLigneSwiv.some(ligne => ligne.idLigne === selectedRoute)
+                            );
 
-			for(var i=0; i<stopTag.length;i++)
-			{
-				var name = stopTag[i].getElementsByTagName("name")[0].firstChild.data;
-				var id = stopTag[i].getElementsByTagName("id")[0].firstChild.data;
-                $(list).append($("<option />").val(id).text(name));
-			}
-		}
+        // var routeStops = stopData.filter(stop => stop.infoLigneSwiv.some(ligne => ligne.idLigne === selectedRoute));
+        for (var i=0; i<routeStops.length;i++)
+        {
+            var name = routeStops[i].nomCommercial;
+            var id = routeStops[i].idPointArret;
+            $(list).append($("<option />").val(id).text(name));
+        }	
         $(list).val(0);
 }
 
@@ -177,39 +233,71 @@ function getArrivalTimes() {
     showAd();
     reset();
     var allRoutes = document.getElementById('allRoutes');
-    var url = encodeURI("http://bustracker.therta.com/bustime/eta/getStopPredictionsETA.jsp?route=" + $("#MainMobileContent_routeList").val() + "&stop=" + $("#MainMobileContent_stopList").val());
-    if (allRoutes != null) {
-        if (allRoutes.checked) {
-            url = encodeURI("http://bustracker.therta.com/bustime/eta/getStopPredictionsETA.jsp?route=all&stop=" + $("#MainMobileContent_stopList").val());
-        }
-    }
+    var url = encodeURI("https://swiv.wrta.cadavl.com/SWIV/WRTA/proxy/restWS/horaires/pta/" + $("#MainMobileContent_stopList").val());
 
-	$.get(url, function(data) {  processXmlDocumentPredictions(data); });       
+	$.get(url, function(data) {  processXmlDocumentPredictions(data); }, 'json');       
     $("span").remove();
     $(".dropList").select2();
 }
 
-function processXmlDocumentPredictions(xml)
+function processXmlDocumentPredictions(json)
 {
         var outputContainer = $('.js-next-bus-results');
-		var stopTag = xml.getElementsByTagName("stop");
-		var predsTag = stopTag[0].getElementsByTagName("pre");
-        var results = '<table id="tblResults" cellpadding="0" cellspacing="0">'
+        var selectedRoute = Number($("#MainMobileContent_routeList").val());
+        var selectedRouteText = $("#MainMobileContent_routeList option:selected").text();
+        var results = '<table id="tblResults" cellpadding="0" cellspacing="0">';
+        var rows = '';
+        var hasRows = false;
+        var predictions = Array.isArray(json) ? json : (json && Array.isArray(json.listeHoraires) ? json.listeHoraires : []);
 
-		if(predsTag != null)
-		{
+        function formatSeconds(seconds)
+        {
+            var total = Number(seconds);
+            if (!isFinite(total)) {
+                return '';
+            }
+            var hours = Math.floor(total / 3600);
+            var minutes = Math.floor((total % 3600) / 60);
+            var suffix = hours >= 12 ? "PM" : "AM";
+            var hour12 = hours % 12;
+            if (hour12 === 0) {
+                hour12 = 12;
+            }
+            return hour12 + ":" + (minutes < 10 ? "0" + minutes : minutes) + " " + suffix;
+        }
+
+        if (predictions.length)
+        {
+            for (var i = 0; i < predictions.length; i++)
+            {
+                var routeId = predictions[i].idLigne;
+                if (!isNaN(selectedRoute) && routeId !== selectedRoute) {
+                    continue;
+                }
+                var destinations = predictions[i].destination || [];
+                for (var j = 0; j < destinations.length; j++)
+                {
+                    var destinationLabel = destinations[j].libelle || '';
+                    var horaires = destinations[j].horaires || [];
+                    for (var k = 0; k < horaires.length; k++)
+                    {
+                        var arrival = formatSeconds(horaires[k].horaireApplicable != null ? horaires[k].horaireApplicable : horaires[k].horaire);
+                        var routeLabel = selectedRouteText || routeId;
+                        rows = rows.concat('<tr class="predictions">');
+                        rows = rows.concat("<td>" + routeLabel + "</td>" + "<td>" + destinationLabel + "</td>" + "<td>" + arrival + "</td>");
+                        rows = rows.concat('</tr><tr><td class="spacer" colspan="3"></td></tr>');
+                        hasRows = true;
+                    }
+                }
+            }
+        }
+
+        if (hasRows)
+        {
             document.getElementById('btnSave').style.visibility = "visible";
-		    results = results.concat('<tr class="header"><th>ROUTE</th><th>DESTINATION</th><th>ARRIVAL</th></tr><tr><td class="spacer" colspan="3"></td></tr>');
-			for(var i=0; i<predsTag.length;i++)
-			{
-				var arrival = predsTag[i].getElementsByTagName("pt")[0].firstChild.data + " " + predsTag[i].getElementsByTagName("pu")[0].firstChild.data;
-				var route = predsTag[i].getElementsByTagName("rd")[0].firstChild.data;
-				var destination = predsTag[i].getElementsByTagName("fd")[0].firstChild.data;
-                results = results.concat('<tr class="predictions">');
-                results = results.concat("<td>" + route + "</td>" + "<td>" + destination + "</td>" + "<td>" + arrival + "</td>");
-			    results = results.concat('</tr><tr><td class="spacer" colspan="3"></td></tr>');
-			}
-		}
+            results = results.concat('<tr class="header"><th>ROUTE</th><th>DESTINATION</th><th>ARRIVAL</th></tr><tr><td class="spacer" colspan="3"></td></tr>');
+            results = results.concat(rows);
+        }
         else
         {
             results = results.concat("<tr><td>No upcoming arrivals</td></tr>");
@@ -233,13 +321,17 @@ function reset() {
 function saveFavorites()
 {
     var favStop = localStorage.getItem("Favorites");
-    var allRoutes = document.getElementById('allRoutes');
-    var newFave = $('#MainMobileContent_routeList option:selected').val() + ">" + $("#MainMobileContent_directionList option:selected").val() + ">" + $("#MainMobileContent_stopList option:selected").val() + "~" + $('#MainMobileContent_routeList option:selected').text() + " > " + $("#MainMobileContent_directionList option:selected").text() + " > " + $("#MainMobileContent_stopList option:selected").text().replace(/'/g, "\\'");
-    if (allRoutes != null) {
-        if (allRoutes.checked) {
-            newFave = "all >" + $("#MainMobileContent_directionList option:selected").val() + ">" + $("#MainMobileContent_stopList option:selected").val() + "~" + "All > " + $("#MainMobileContent_directionList option:selected").text() + " > " + $("#MainMobileContent_stopList option:selected").text().replace(/'/g, "\\'");
-        }
+    var stopId = $("#MainMobileContent_stopList").val();
+    if (!stopId) {
+        $("#message").text('Please select a stop first.');
+        return;
     }
+    var newFave = $('#MainMobileContent_routeList option:selected').val() + ">" + stopId + "~" + $('#MainMobileContent_routeList option:selected').text() + " > " + $("#MainMobileContent_stopList option:selected").text().replace(/'/g, "\\'");
+    // if (allRoutes != null) {
+    //     if (allRoutes.checked) {
+    //         newFave = "all >" + $("#MainMobileContent_directionList option:selected").val() + ">" + $("#MainMobileContent_stopList option:selected").val() + "~" + "All > " + $("#MainMobileContent_directionList option:selected").text() + " > " + $("#MainMobileContent_stopList option:selected").text().replace(/'/g, "\\'");
+    //     }
+    // }
     
         if (favStop == null)
         {
